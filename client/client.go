@@ -12,20 +12,20 @@ func NewInstrumentedClient(r prometheus.Registerer) *http.Client {
 	return InstrumentClient(&http.Client{}, r)
 }
 
+var counter *prometheus.CounterVec = prometheus.NewCounterVec(
+	prometheus.CounterOpts{
+		Name: "client_requests_total",
+		Help: "A counter for requests from the wrapped client.",
+	},
+	[]string{"code", "method"},
+)
+
 // InstrumentClient instruments the given http Client.
 func InstrumentClient(c *http.Client, r prometheus.Registerer) *http.Client {
 	inFlightGauge := prometheus.NewGauge(prometheus.GaugeOpts{
 		Name: "client_in_flight_requests",
 		Help: "A gauge of in-flight requests for the wrapped client.",
 	})
-
-	counter := prometheus.NewCounterVec(
-		prometheus.CounterOpts{
-			Name: "client_requests_total",
-			Help: "A counter for requests from the wrapped client.",
-		},
-		[]string{"code", "method"},
-	)
 
 	// dnsLatencyVec uses custom buckets based on expected dns durations.
 	// It has an instance label "event", which is set in the
