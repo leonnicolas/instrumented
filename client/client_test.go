@@ -25,8 +25,23 @@ func TestCounter(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	count := testutil.CollectAndCount(counter, "client_requests_total")
-	if count != 1 {
-		t.Errorf("expected 1, got %d\n", count)
+	t.Run("counter", func(t *testing.T) {
+		count := testutil.CollectAndCount(counter, "client_requests_total")
+		if count != 1 {
+			t.Errorf("expected 1, got %d\n", count)
+		}
+	})
+
+	for _, c := range []prometheus.Collector{counter, inFlightGauge, dnsLatencyVec, tlsLatencyVec, histVec} {
+		t.Run("lint", func(t *testing.T) {
+			p, err := testutil.CollectAndLint(c)
+			if err != nil {
+				t.Errorf("linting error: %v\n", err)
+			}
+			if p != nil {
+				t.Errorf("linting problems: %v\n", p)
+			}
+
+		})
 	}
 }
