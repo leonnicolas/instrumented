@@ -31,7 +31,8 @@ func TestCounter(t *testing.T) {
 			t.Errorf("expected 1, got %d\n", count)
 		}
 	})
-
+}
+func TestLint(t *testing.T) {
 	for _, c := range []prometheus.Collector{counter, inFlightGauge, dnsLatencyVec, tlsLatencyVec, histVec} {
 		t.Run("lint", func(t *testing.T) {
 			p, err := testutil.CollectAndLint(c)
